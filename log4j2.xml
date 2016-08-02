@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration status="OFF">
+	<appenders>
+		
+		<Console name="Console" target="SYSTEM_OUT">
+			<PatternLayout pattern="%d{dd/MM/YYYY HH:mm:ss} %-5level %logger{36} - %msg%n" />
+		</Console>
+		
+		<RandomAccessFile name="File" fileName="logs/nunki.log" append="false">
+			<PatternLayout pattern="%d{dd/MM/YYYY HH:mm:ss} %-5level %logger{36} - %msg%n" />
+		</RandomAccessFile>		
+		
+	</appenders>
+	
+	<loggers>
+	
+		<Logger name="br.cefetrj.sagitarii.teapot.comm.MultiThreadUpload" level="debug" additivity="false"> 
+			<appender-ref ref="File"/> 
+		</Logger>
+
+		<Logger name="br.cefetrj.sagitarii.teapot.comm.FTPUploadTask" level="debug" additivity="false"> 
+			<appender-ref ref="File"/> 
+		</Logger>
+
+		<Logger name="br.cefetrj.sagitarii.nunki.comm.Uploader" level="debug" additivity="false"> 
+			<appender-ref ref="File"/> 
+		</Logger>
+
+		<Logger name="br.cefetrj.sagitarii.nunki.comm.Client" level="debug" additivity="false"> 
+			<appender-ref ref="File"/> 
+		</Logger>
+
+		<Logger name="cmabreu.sagitarii.nunki.DynamicLoadBalancer" level="debug" additivity="false"> 
+			<appender-ref ref="File"/> 
+		</Logger>
+
+		<Logger name="br.cefetrj.sagitarii.nunki.SpeedEqualizer" level="debug" additivity="false"> 
+			<appender-ref ref="File"/> 
+		</Logger>
+
+		<Logger name="br.cefetrj.sagitarii.nunki.TaskRunner" level="debug" additivity="false"> 
+			<appender-ref ref="File"/> 
+		</Logger>
+		
+		<Logger name="br.cefetrj.sagitarii.nunki.Configurator" level="debug" additivity="false"> 
+			<appender-ref ref="File"/> 
+		</Logger>
+		
+		<Logger name="br.cefetrj.sagitarii.nunki.XMLParser" level="debug" additivity="false"> 
+			<appender-ref ref="File"/> 
+		</Logger>
+
+		<Logger name="br.cefetrj.sagitarii.nunki.comm.Downloader" level="debug" additivity="false"> 
+			<appender-ref ref="File"/> 
+		</Logger>
+
+		<Logger name="br.cefetrj.sagitarii.nunki.Task" level="debug" additivity="false"> 
+			<appender-ref ref="File"/> 
+		</Logger>
+
+		<Logger name="br.cefetrj.sagitarii.nunki.TaskManager" level="debug" additivity="false"> 
+			<appender-ref ref="File"/> 
+		</Logger>
+
+		<Logger name="br.cefetrj.sagitarii.nunki.Main" level="debug" additivity="false"> 
+			<appender-ref ref="File"/> 
+		</Logger>
+
+		<root level="debug">
+			<appender-ref ref="File" />
+		</root>
+		
+	</loggers>
+	
+	
+</configuration>

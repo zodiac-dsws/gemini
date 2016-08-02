@@ -1,0 +1,10 @@
+Copy all files to /etc/nunki
+cd /etc/nunki
+
+cp nunki /etc/init.d/
+
+sudo chmod +x /etc/init.d/nunki
+sudo chown root:root /etc/init.d/nunki
+
+sudo update-rc.d nunki defaults
+sudo update-rc.d nunki enable
