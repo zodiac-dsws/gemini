@@ -1,2 +1,0 @@
-# Gemini
-Gemini Instance Generator

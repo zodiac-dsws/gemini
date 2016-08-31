@@ -1,1 +1,0 @@
-java -jar teapot-1.2.0-beta.jar
