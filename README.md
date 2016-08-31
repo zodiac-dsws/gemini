@@ -1,2 +1,2 @@
-# gemini
-Gemini SQL Node
+# Gemini
+Gemini Instance Generator
