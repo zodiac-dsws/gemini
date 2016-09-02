@@ -5,7 +5,7 @@
 	<session-factory>  
 		<property name="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</property> 
 		<property name="hibernate.connection.driver_class">org.postgresql.Driver</property> 
-		<property name="hibernate.connection.url">jdbc:postgresql://localhost/sagitarii2?ApplicationName=Sagitarii</property> 
+		<property name="hibernate.connection.url">jdbc:postgresql://localhost/sagitarii?ApplicationName=Sagitarii</property> 
 
 		<property name="hibernate.hbm2ddl.auto">update</property>
 
@@ -28,15 +28,15 @@
 		<property name="hibernate.c3p0.unreturnedConnectionTimeout">60</property>
 		                                
 
-		<mapping class="br.com.cmabreu.zodiac.sagittarius.entity.User"/>
-		<mapping class="br.com.cmabreu.zodiac.sagittarius.entity.Activity"/>
-		<mapping class="br.com.cmabreu.zodiac.sagittarius.entity.Consumption"/>
-		<mapping class="br.com.cmabreu.zodiac.sagittarius.entity.Domain"/>
-		<mapping class="br.com.cmabreu.zodiac.sagittarius.entity.Experiment"/>
-		<mapping class="br.com.cmabreu.zodiac.sagittarius.entity.Fragment"/>
-		<mapping class="br.com.cmabreu.zodiac.sagittarius.entity.Instance"/>
-		<mapping class="br.com.cmabreu.zodiac.sagittarius.entity.Relation"/>
-		<mapping class="br.com.cmabreu.zodiac.sagittarius.entity.Workflow"/>
+		<mapping class="br.com.cmabreu.zodiac.gemini.entity.User"/>
+		<mapping class="br.com.cmabreu.zodiac.gemini.entity.Activity"/>
+		<mapping class="br.com.cmabreu.zodiac.gemini.entity.Consumption"/>
+		<mapping class="br.com.cmabreu.zodiac.gemini.entity.Domain"/>
+		<mapping class="br.com.cmabreu.zodiac.gemini.entity.Experiment"/>
+		<mapping class="br.com.cmabreu.zodiac.gemini.entity.Fragment"/>
+		<mapping class="br.com.cmabreu.zodiac.gemini.entity.Instance"/>
+		<mapping class="br.com.cmabreu.zodiac.gemini.entity.Relation"/>
+		<mapping class="br.com.cmabreu.zodiac.gemini.entity.Workflow"/>
 		
 		
 	</session-factory> 

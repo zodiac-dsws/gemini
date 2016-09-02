@@ -5,13 +5,17 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+import br.com.cmabreu.zodiac.gemini.core.FragmentInstancer;
 import br.com.cmabreu.zodiac.gemini.core.Logger;
+import br.com.cmabreu.zodiac.gemini.entity.Experiment;
+import br.com.cmabreu.zodiac.gemini.exceptions.NotFoundException;
 import br.com.cmabreu.zodiac.gemini.federation.Environment;
 import br.com.cmabreu.zodiac.gemini.federation.RTIAmbassadorProvider;
 import br.com.cmabreu.zodiac.gemini.federation.classes.CoreClass;
 import br.com.cmabreu.zodiac.gemini.federation.classes.GeminiClass;
 import br.com.cmabreu.zodiac.gemini.federation.classes.GenerateInstancesInteractionClass;
 import br.com.cmabreu.zodiac.gemini.misc.PathFinder;
+import br.com.cmabreu.zodiac.gemini.services.ExperimentService;
 import hla.rti1516e.AttributeHandleValueMap;
 import hla.rti1516e.ObjectInstanceHandle;
 import hla.rti1516e.ParameterHandleValueMap;
@@ -148,24 +152,48 @@ public class GeminiFederate {
 
 	public void generateInstances(ParameterHandleValueMap theParameters) {
 		String experimentSerial = generateInstancesInteractionClass.getExperimentSerial( theParameters );
-		debug("Federate: Generate instances to experiment " + experimentSerial );
+		debug("Generate instances for experiment " + experimentSerial );
+
+		try {
+			ExperimentService es = new ExperimentService();
+			Experiment exp = es.getExperiment(experimentSerial);
+			
+			try {
+				FragmentInstancer fp = new FragmentInstancer( exp );
+				fp.generate();
+				
+				int pips = fp.getInstances().size();
+				if ( pips == 0) {
+					debug("experiment " + experimentSerial + " generate empty instance list. Will finish it" );
+				}
+				
+			} catch (Exception e) {
+				error("cannot generate instances for experiment " + exp.getTagExec() + ": " + e.getMessage() );
+			}
+			
+			
+		} catch ( NotFoundException e) {
+			error("Experiment " + experimentSerial + " not found.");
+		} catch ( Exception e ) {
+			
+		}
+		
+		debug("done generating instances for Experiment " + experimentSerial );
 		
 		/*
-		try {
-			FragmentInstancer fp = new FragmentInstancer( exp );
-			fp.generate();
-			int pips = fp.getInstances().size();
-			if ( pips == 0) {
-				logger.debug("experiment " + exp.getTagExec() + " generate empty instance list. Will finish it" );
-				haveReady = false;
-			} 
-		} catch (Exception e) {
-			logger.error("cannot generate instances for experiment " + exp.getTagExec() + ": " + e.getMessage() );
-			haveReady = false;
-		}
-		logger.debug("done generating instances (" + exp.getTagExec() + ")");
-		*/		
-		
+			select exp.id_experiment as experiment, act.executoralias, fr.id_fragment as fragment, fr.status as fragstatus, ins.serial as instance, ins.type from instances ins 
+				join fragments fr on fr.id_fragment = ins.id_fragment
+				join activities act on act.id_fragment = fr.id_fragment
+				join experiments exp on exp.id_experiment = fr.id_experiment
+			order by fr.serial
+			
+			update fragments set status = 'RUNNING' where id_fragment = 3154
+			update instances set status = 'PIPELINED' where id_fragment = 3153
+			update experiments set status = 'RUNNING' where id_experiment = 355
+			select * from instances where status = 'PIPELINED'
+			
+			select distinct (status), count(status) from instances group by status order by status
+		*/
 	}
 
 	

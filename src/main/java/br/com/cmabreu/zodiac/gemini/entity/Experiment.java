@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import javax.management.relation.Relation;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
