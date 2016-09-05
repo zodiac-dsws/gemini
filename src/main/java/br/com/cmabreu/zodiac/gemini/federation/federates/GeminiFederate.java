@@ -165,6 +165,8 @@ public class GeminiFederate {
 				int pips = fp.getInstances().size();
 				if ( pips == 0) {
 					debug("experiment " + experimentSerial + " generate empty instance list. Will finish it" );
+				} else {
+					debug("done generating " + pips + "instances for Experiment " + experimentSerial );
 				}
 				
 			} catch (Exception e) {
@@ -175,10 +177,8 @@ public class GeminiFederate {
 		} catch ( NotFoundException e) {
 			error("Experiment " + experimentSerial + " not found.");
 		} catch ( Exception e ) {
-			
+			error("Error generating instances fot Experiment " + experimentSerial );
 		}
-		
-		debug("done generating instances for Experiment " + experimentSerial );
 		
 		/*
 			select exp.id_experiment as experiment, act.executoralias, fr.id_fragment as fragment, fr.status as fragstatus, ins.serial as instance, ins.type from instances ins 
@@ -193,6 +193,8 @@ public class GeminiFederate {
 			select * from instances where status = 'PIPELINED'
 			
 			select distinct (status), count(status) from instances group by status order by status
+			select id_fragment, status, count(status) from instances group by id_fragment,status order by status	
+			
 		*/
 	}
 
