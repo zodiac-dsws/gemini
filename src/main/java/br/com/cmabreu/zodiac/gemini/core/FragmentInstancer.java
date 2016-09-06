@@ -155,6 +155,7 @@ public class FragmentInstancer {
 	public void generate() throws Exception {
 		try {
 			for ( Fragment frag : fragments ) {
+				debug("Checking fragment " + frag.getSerial() + " (" + frag.getStatus() + "):");
 				if ( ( frag.getStatus() == FragmentStatus.PREVIEW ) || ( frag.getStatus() == FragmentStatus.READY ) ) {
 					debug("will create instances for fragment " + frag.getSerial() );
 					Activity act = getEntrancePoint( frag );

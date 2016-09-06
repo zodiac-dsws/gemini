@@ -158,7 +158,10 @@ public class GeminiFederate {
 			ExperimentService es = new ExperimentService();
 			Experiment exp = es.getExperiment(experimentSerial);
 			
+			debug("Experiment " + exp.getTagExec() + " found.");
+			
 			try {
+				não está executando isso !!!
 				FragmentInstancer fp = new FragmentInstancer( exp );
 				fp.generate();
 				
