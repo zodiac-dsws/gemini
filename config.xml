@@ -1,11 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- 
-	Arquivo de configuração do Sagitarii
-	Versão	: 5.0 
-	Por		: Carlos Magno Abreu em 29/05/2015
- -->
-
 <configuration>
 	
 	<sagittarius>
@@ -20,10 +14,8 @@
 		<CSVDelimiter>,</CSVDelimiter>
 		<useDynamicLoadBalancer>true</useDynamicLoadBalancer>
 		<hadoopConfigPath>/opt/hadoop/hadoop/etc/hadoop/</hadoopConfigPath>
-
-		<foms>d:/foms/</foms>
 		
-		<databaseName>sagittarius</databaseName>
+		<databaseName>sagitarii</databaseName>
 		<userName>postgres</userName>
 		<password>admin</password>
 		
