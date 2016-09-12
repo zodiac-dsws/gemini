@@ -48,7 +48,17 @@ public class Main {
 	        scheduler.scheduleAtFixedRate(as, interval, interval , TimeUnit.SECONDS);
 
 	        GeminiFederate.getInstance().startServer();
-
+	        
+	        
+	        // ****************** START EXPERIMENT TEST ****************
+				try {
+					GeminiFederate.getInstance().startExperiment( 354 );
+				} catch (Exception e) {
+					e.printStackTrace();
+				}	        
+	        // *********************************************************
+	        
+				
 		} catch (Exception e) { 
 			System.out.println( e.getMessage() );
 			loggerError( e.getMessage() );

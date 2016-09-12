@@ -1,6 +1,7 @@
 package br.com.cmabreu.zodiac.gemini.federation.classes;
 
 
+import br.com.cmabreu.zodiac.gemini.core.Logger;
 import br.com.cmabreu.zodiac.gemini.federation.EncoderDecoder;
 import br.com.cmabreu.zodiac.gemini.federation.RTIAmbassadorProvider;
 import hla.rti1516e.InteractionClassHandle;
@@ -9,21 +10,17 @@ import hla.rti1516e.ParameterHandleValueMap;
 import hla.rti1516e.RTIambassador;
 import hla.rti1516e.encoding.HLAunicodeString;
 
-public class GenerateInstancesInteractionClass {
-	private InteractionClassHandle generateInstancesInteractionHandle;
+public class ExperimentStartedInteractionClass {
+	private InteractionClassHandle experimentStartedInteractionHandle;
 	private ParameterHandle experimentSerialParameterHandle;
 	private EncoderDecoder encodec;
 	
 	private RTIambassador rtiamb;
 
-	public InteractionClassHandle getInteractionClassHandle() {
-		return generateInstancesInteractionHandle;
-	}
-	
-	public GenerateInstancesInteractionClass() throws Exception {
+	public ExperimentStartedInteractionClass() throws Exception {
 		rtiamb = RTIAmbassadorProvider.getInstance().getRTIAmbassador();
-		generateInstancesInteractionHandle = rtiamb.getInteractionClassHandle( "HLAinteractionRoot.GenerateInstances" );
-		experimentSerialParameterHandle = rtiamb.getParameterHandle( generateInstancesInteractionHandle, "ExperimentSerial" );
+		experimentStartedInteractionHandle = rtiamb.getInteractionClassHandle( "HLAinteractionRoot.ExperimentStarted" );
+		experimentSerialParameterHandle = rtiamb.getParameterHandle( experimentStartedInteractionHandle, "ExperimentSerial" );
 		encodec = new EncoderDecoder();
 	}
 	
@@ -34,19 +31,29 @@ public class GenerateInstancesInteractionClass {
 	
 	public void send( String experimentSerial ) throws Exception {
 		HLAunicodeString experimentSerialValue = encodec.createHLAunicodeString( experimentSerial );
-		
-		ParameterHandleValueMap parameters = rtiamb.getParameterHandleValueMapFactory().create(2);
+		ParameterHandleValueMap parameters = rtiamb.getParameterHandleValueMapFactory().create(1);
 		parameters.put( experimentSerialParameterHandle, experimentSerialValue.toByteArray() );
-		
-		rtiamb.sendInteraction( generateInstancesInteractionHandle, parameters, "Generate Instances".getBytes() );		
+		String text = "Experiment "+experimentSerial+" Started";
+		rtiamb.sendInteraction( experimentStartedInteractionHandle, parameters, text.getBytes() );		
 	}
 
 	public void publish() throws Exception {
-		rtiamb.publishInteractionClass( generateInstancesInteractionHandle );
+		debug("publish");
+		rtiamb.publishInteractionClass( experimentStartedInteractionHandle );
 	}
 	
 	public void subscribe() throws Exception {
-		rtiamb.subscribeInteractionClass( generateInstancesInteractionHandle );		
+		debug("subscribe");
+		rtiamb.subscribeInteractionClass( experimentStartedInteractionHandle );		
 	}
+
+	public Object getInteractionClassHandle() {
+		return experimentStartedInteractionHandle;
+	}
+	
+	private void debug( String s ) {
+		Logger.getInstance().debug(this.getClass().getName(), s );
+	}		
+
 	
 }

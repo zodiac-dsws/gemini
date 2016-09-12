@@ -69,7 +69,9 @@ public class GeminiAmbassador extends NullFederateAmbassador {
 			SupplementalReceiveInfo receiveInfo) throws FederateInternalError {
 
 		try {
-			GeminiFederate.getInstance().generateInstances( theParameters );
+			if ( GeminiFederate.getInstance().isGenerateInstanceInteraction( interactionClass ) ) {
+				GeminiFederate.getInstance().generateInstances( theParameters );
+			}
 		} catch ( Exception e ) {
 			
 		}
@@ -80,8 +82,4 @@ public class GeminiAmbassador extends NullFederateAmbassador {
 		Logger.getInstance().debug(this.getClass().getName(), s );
 	}	
 
-	private void error( String s ) {
-		Logger.getInstance().error(this.getClass().getName(), s );
-	}		
-	
 }

@@ -1,6 +1,6 @@
 package br.com.cmabreu.zodiac.gemini.services;
 
-import java.util.Set;
+import java.util.List;
 
 import br.com.cmabreu.zodiac.gemini.entity.ActivationExecutor;
 import br.com.cmabreu.zodiac.gemini.exceptions.DatabaseConnectException;
@@ -15,7 +15,7 @@ public class ExecutorService {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
 		sb.append("<manifest>\n");
-		Set<ActivationExecutor> preList = null;
+		List<ActivationExecutor> preList = null;
 		try {
 			preList = rep.getList();
 		} catch ( NotFoundException e ) {
@@ -56,8 +56,8 @@ public class ExecutorService {
 	}
 	
 	
-	public Set<ActivationExecutor> getList() throws NotFoundException {
-		Set<ActivationExecutor> preList = rep.getList();
+	public List<ActivationExecutor> getList() throws NotFoundException {
+		List<ActivationExecutor> preList = rep.getList();
 		return preList;	
 	}
 	

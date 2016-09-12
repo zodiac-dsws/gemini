@@ -12,11 +12,14 @@ import br.com.cmabreu.zodiac.gemini.exceptions.NotFoundException;
 import br.com.cmabreu.zodiac.gemini.federation.Environment;
 import br.com.cmabreu.zodiac.gemini.federation.RTIAmbassadorProvider;
 import br.com.cmabreu.zodiac.gemini.federation.classes.CoreClass;
+import br.com.cmabreu.zodiac.gemini.federation.classes.ExperimentStartedInteractionClass;
 import br.com.cmabreu.zodiac.gemini.federation.classes.GeminiClass;
 import br.com.cmabreu.zodiac.gemini.federation.classes.GenerateInstancesInteractionClass;
 import br.com.cmabreu.zodiac.gemini.misc.PathFinder;
 import br.com.cmabreu.zodiac.gemini.services.ExperimentService;
+import br.com.cmabreu.zodiac.gemini.services.FragmentService;
 import hla.rti1516e.AttributeHandleValueMap;
+import hla.rti1516e.InteractionClassHandle;
 import hla.rti1516e.ObjectInstanceHandle;
 import hla.rti1516e.ParameterHandleValueMap;
 import hla.rti1516e.RTIambassador;
@@ -30,6 +33,7 @@ public class GeminiFederate {
 	private String rootPath;
 	private GeminiClass geminiClass;
 	private GenerateInstancesInteractionClass generateInstancesInteractionClass;
+	private ExperimentStartedInteractionClass experimentStartedInteractionClass;
 	private CoreClass coreClass;
 
 	public static GeminiFederate getInstance() throws Exception {
@@ -38,6 +42,17 @@ public class GeminiFederate {
 		}
 		return instance;
 	}
+	
+	public Experiment startExperiment( int idExperiment ) throws Exception {
+		debug("Starting Experiment ID " + idExperiment + "...");
+		Experiment experiment = new ExperimentService().runExperiment( idExperiment );
+		debug("Experiment " + experiment.getTagExec() + " is now running.");
+		
+		// Notify the Federation
+		experimentStartedInteractionClass.send( experiment.getTagExec() );
+		
+		return experiment;
+	}	
 	
 	public void finishFederationExecution() throws Exception {
 		debug( "Will try to finish Federation execution" );
@@ -98,6 +113,10 @@ public class GeminiFederate {
 	}
 	
 
+	public boolean isGenerateInstanceInteraction( InteractionClassHandle interactionClassHandle ) {
+		return generateInstancesInteractionClass.getInteractionClassHandle().equals( interactionClassHandle ); 
+	}
+	
 	public void startServer() throws Exception {
 		startFederate();
 		if ( geminiClass == null ) {
@@ -111,7 +130,11 @@ public class GeminiFederate {
 			
 			// Listen to generate instances commands from Sagittarius
 			generateInstancesInteractionClass = new GenerateInstancesInteractionClass();
-			generateInstancesInteractionClass.subscribe();			
+			generateInstancesInteractionClass.subscribe();	
+			
+			// Notify Federation when a Experiment is running
+			experimentStartedInteractionClass = new ExperimentStartedInteractionClass();
+			experimentStartedInteractionClass.publish();
 			
 			debug("done.");
 			
@@ -150,32 +173,41 @@ public class GeminiFederate {
 		Logger.getInstance().error(this.getClass().getName(), s );
 	}
 
+	// *************************************************************
+	// *** TODO: MUST BE THREADED OR WILL BLOCK THE FEDERATE!!!! ***
+	// *************************************************************
 	public void generateInstances(ParameterHandleValueMap theParameters) {
 		String experimentSerial = generateInstancesInteractionClass.getExperimentSerial( theParameters );
 		debug("Generate instances for experiment " + experimentSerial );
 
 		try {
+			
 			ExperimentService es = new ExperimentService();
 			Experiment exp = es.getExperiment(experimentSerial);
-			
-			debug("Experiment " + exp.getTagExec() + " found.");
-			
+
 			try {
-				não está executando isso !!!
-				FragmentInstancer fp = new FragmentInstancer( exp );
-				fp.generate();
-				
-				int pips = fp.getInstances().size();
-				if ( pips == 0) {
-					debug("experiment " + experimentSerial + " generate empty instance list. Will finish it" );
-				} else {
-					debug("done generating " + pips + "instances for Experiment " + experimentSerial );
-				}
-				
-			} catch (Exception e) {
-				error("cannot generate instances for experiment " + exp.getTagExec() + ": " + e.getMessage() );
-			}
+				FragmentService fs = new FragmentService();
+				exp.setFragments( fs.getList( exp.getIdExperiment() ) );
 			
+				debug("Experiment " + exp.getTagExec() + " found.");
+				
+				try {
+					FragmentInstancer fp = new FragmentInstancer( exp );
+					fp.generate();
+					int pips = fp.getInstances().size();
+					if ( pips == 0) {
+						debug("experiment " + experimentSerial + " generate empty instance list. Will finish it" );
+					} else {
+						debug("done generating " + pips + "instances for Experiment " + experimentSerial );
+					}
+					
+				} catch (Exception e) {
+					error("cannot generate instances for experiment " + exp.getTagExec() + ": " + e.getMessage() );
+				}
+			
+			} catch ( NotFoundException nfe ) {
+				error("Experiment " + experimentSerial + " have no Fragments.");
+			}
 			
 		} catch ( NotFoundException e) {
 			error("Experiment " + experimentSerial + " not found.");

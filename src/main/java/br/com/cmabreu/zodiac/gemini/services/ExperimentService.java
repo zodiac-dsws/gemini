@@ -1,15 +1,20 @@
 package br.com.cmabreu.zodiac.gemini.services;
 
+import java.util.Calendar;
 import java.util.List;
 import java.util.Set;
 
+import br.com.cmabreu.zodiac.gemini.core.FragmentInstancer;
+import br.com.cmabreu.zodiac.gemini.core.Genesis;
 import br.com.cmabreu.zodiac.gemini.core.Logger;
 import br.com.cmabreu.zodiac.gemini.entity.Experiment;
 import br.com.cmabreu.zodiac.gemini.entity.User;
 import br.com.cmabreu.zodiac.gemini.exceptions.DatabaseConnectException;
 import br.com.cmabreu.zodiac.gemini.exceptions.InsertException;
 import br.com.cmabreu.zodiac.gemini.exceptions.NotFoundException;
+import br.com.cmabreu.zodiac.gemini.exceptions.UpdateException;
 import br.com.cmabreu.zodiac.gemini.repository.ExperimentRepository;
+import br.com.cmabreu.zodiac.gemini.types.ExperimentStatus;
 
 public class ExperimentService {
 	private ExperimentRepository rep;
@@ -80,6 +85,90 @@ public class ExperimentService {
 	private void debug( String s ) {
 		Logger.getInstance().debug(this.getClass().getName(), s );
 	}	
+	
+	private void error( String s ) {
+		Logger.getInstance().error(this.getClass().getName(), s );
+	}		
+
+	
+	
+	public Experiment runExperiment( int idExperiment ) throws Exception {
+		
+		debug( "Generating Activities to run Experiment " + idExperiment );  
+		Experiment experiment = null;
+		try {
+			experiment = rep.getExperiment( idExperiment );
+		} catch (NotFoundException e) {
+			throw new UpdateException( e.getMessage() );
+		}
+		
+		if ( experiment.getStatus() == ExperimentStatus.FINISHED ) {
+			throw new Exception("This experiment is finished.");
+		}
+
+		if ( experiment.getStatus() == ExperimentStatus.RUNNING ) {
+			throw new Exception("This experiment is already running.");
+		}
+		
+		if ( experiment.getStatus() == ExperimentStatus.STARTING ) {
+			throw new Exception("This experiment is already starting. Be patient.");
+		}
+		
+		debug("setting experiment status to STARTING");
+		experiment.setStatus( ExperimentStatus.STARTING );
+		rep.newTransaction();
+		rep.updateExperiment(experiment);
+
+		
+		try {
+		
+			debug("Genesis is converting JSON specifications and fragmenting...");
+			// Gerar atividades basado na especificação JSON
+			Genesis ag = new Genesis();
+			ag.generate(experiment);
+	
+			// Fragmentar baseado nos tipos de atividades e dados disponíveis.
+			int acts = ag.getActivities().size();
+			int frgs = experiment.getFragments().size();
+	
+			debug("fragmenting is done. storing now.");
+			new FragmentService().insertFragmentList( experiment.getFragments() );
+			
+			experiment.setStatus( ExperimentStatus.RUNNING );
+			experiment.setLastExecutionDate( Calendar.getInstance().getTime() );
+	
+			// Gerar instances do primeiro fragmento que pode ser executado.
+			debug("creating instances");
+			FragmentInstancer fp = new FragmentInstancer( experiment );
+			fp.generate();
+			
+			int pips = fp.getInstances().size();
+			
+			debug( acts + " activities generated." );
+			debug( frgs + " fragments generated." );
+			debug( pips + " instances generated." );
+	
+			debug("saving experiment");
+			rep.newTransaction();
+			rep.updateExperiment(experiment);
+	
+			//Sagitarii.getInstance().addRunningExperiment(experiment);
+			
+			debug( "Experiment " + experiment.getTagExec() + " is now running with " + acts + " activities, " + frgs + " fragments and " + pips + " instances.");
+			
+		} catch ( Exception e ) {
+			error( e.getMessage() );
+
+			debug("setting experiment status to STOPPED due to starting error");
+			experiment.setStatus( ExperimentStatus.STOPPED );
+			rep.newTransaction();
+			rep.updateExperiment(experiment);
+			
+			throw e;
+		}
+		return experiment;
+	}
+	
 
 
 }

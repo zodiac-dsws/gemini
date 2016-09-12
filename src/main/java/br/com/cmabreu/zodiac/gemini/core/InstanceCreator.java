@@ -43,7 +43,6 @@ public class InstanceCreator {
 		pipe.setIdFragment( fragment.getIdFragment() );
 		pipe.setContent( getXMLContent(activity, parameter, pipe.getSerial() )  );
 		pipe.setType( activity.getType() );
-		//pipe.setExecutorAlias( activity.getExecutorAlias() );
 		pipe.setQtdActivations( order );
 		return pipe;
 	}
@@ -53,17 +52,23 @@ public class InstanceCreator {
 		String retorno = "";
 		String firstLine = "";
 		String secondLine = "";
+		
+		// Generate the columns
 		for( String column : parameter.getColumnNames() ) {
 			if ( !isNative( column ) ) {
 				firstLine = firstLine + column + ",";
 			}
 		}
+		
+		// Generate the data
 		for( String column : parameter.getColumnNames() ) {
 			if ( !isNative( column ) ) {
 				String value = parameter.getData( column );
 				secondLine = secondLine + value + ",";
 			}
 		}
+		
+		// Mount header columns + data line
 		if ( ( firstLine.length() > 0 ) && ( secondLine.length() > 0 ) ) {
 			firstLine = firstLine.substring(0, firstLine.length() - 1);
 			secondLine = secondLine.substring(0, secondLine.length() - 1);
@@ -91,23 +96,9 @@ public class InstanceCreator {
 	}	
 
 	/**
-	 * Para cada campo de cada tabela de entrada, verificar se eh do tipo "File".
-	 * Se for, inserir uma entrada "File" no instance para o arquivo especificado e
-	 * trocar o indice pelo nome do arquivo no CSV de dados.
-	 * 
-	 * Exemplo:
-	 * Trocar : 
-	 * 		nome,idade,dados;
-	 * 		Joao,34,67
-	 * 		Maria,23,48
-	 * Por:
-	 * 		nome,idade,dados;
-	 * 		Joao,34,data1.zip
-	 * 		Maria,23,data3.zip
-	 * 
-	 * E criar no instance:
-	 * 	<file domain='clientes.dados' name='data1.zip' index='67' />
-	 * 	<file domain='clientes.dados' name='data3.zip' index='48' />
+	 * Criar no instance:
+	 * 	<file table='input_data' name='data1.zip' attribute='columnx' />
+	 * 	<file table='input_data' name='data3.zip' attribute='columnx' />
 	 * 
 	 */
 	private String getFilesAndConvertData( Activity activity, String parameter ) throws Exception {
@@ -142,18 +133,14 @@ public class InstanceCreator {
 			for ( Relation inputRelation : activity.getInputRelations() ) {
 				String sourceTable = inputRelation.getName();
 				String domainName = sourceTable + "." + column;
-				// ...pegar o domínio correspondente (se houver) 
+				
 				debug("checking domain " + domainName + "..." );
 				Domain domain = DomainStorage.getInstance().getDomain( domainName );
 				if ( domain != null ) {
 					changed = true;
 					debug( domainName + " is a File type field. scanning data lines..." );
 					
-					// A coluna número columnIndex é tipo "File". Em todas as linhas de dados do CSV,
-					// trocar a coluna columnIndex pelo nome do arquivo correspondente ao
-					// índice existente lá.
-					// Preparar para refazer a linha com os valores CSV...
-					// Para cada linha...
+
 					
 					for ( int lineNumber = 1; lineNumber < lines.length; lineNumber++ ) {
 						String newLine = "";
@@ -212,6 +199,7 @@ public class InstanceCreator {
 		String command = "";
 		
 		// Verifica se ha colunas do tipo "File" e modifica os dados (troca o ID pelo nome).
+		// TODO: ISSO PRECISA SER REFEITO !!
 		parameter = getFilesAndConvertData( activity, parameter );
 
 		cs.newTransaction();
@@ -226,9 +214,8 @@ public class InstanceCreator {
 			throw new Exception( e.getMessage() );
 		}
 		
-		
 		if ( activity.getType().isJoin() ) {
-			debug("this activity will run on Main Cluster (SQL)");
+			debug("this activity will run a SQL script");
 			
 			String sql = executor.getSelectStatement().replace("%ID_EXP%",  String.valueOf( this.fragment.getExperiment().getIdExperiment() ) );
 			sql = sql.replace("%ID_WFL%", String.valueOf( this.fragment.getExperiment().getWorkflow().getIdWorkflow() ));
@@ -286,6 +273,7 @@ public class InstanceCreator {
 		
 		sbu.append( "</activity>" );
 		order++;
+		
 		return sbu.toString();
 	}
 	

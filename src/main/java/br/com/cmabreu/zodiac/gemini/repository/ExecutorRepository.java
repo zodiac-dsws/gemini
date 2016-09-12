@@ -1,7 +1,6 @@
 package br.com.cmabreu.zodiac.gemini.repository;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 import br.com.cmabreu.zodiac.gemini.core.Logger;
 import br.com.cmabreu.zodiac.gemini.entity.ActivationExecutor;
@@ -20,13 +19,13 @@ public class ExecutorRepository extends BasicRepository {
 		debug("init");
 	}
 
-	public Set<ActivationExecutor> getList() throws NotFoundException {
+	public List<ActivationExecutor> getList() throws NotFoundException {
 		debug("get list" );
 		DaoFactory<ActivationExecutor> df = new DaoFactory<ActivationExecutor>();
 		IDao<ActivationExecutor> fm = df.getDao(this.session, ActivationExecutor.class);
-		Set<ActivationExecutor> executors = null;
+		List<ActivationExecutor> executors = null;
 		try {
-			executors = new HashSet<ActivationExecutor>( fm.getList("select * from executors") );
+			executors = fm.getList("select * from executors") ;
 		} catch ( Exception e ) {
 			closeSession();
 			throw e;
@@ -82,7 +81,7 @@ public class ExecutorRepository extends BasicRepository {
 			executor = fm.getList("select * from executors where executoralias = '" + executorAlias + "'").get(0);
 		} catch ( Exception e ) {
 			closeSession();		
-			throw new NotFoundException("Cannot find executor "+executorAlias+". Please check its name.");
+			throw new NotFoundException("Cannot find executor "+executorAlias+". Please check the name.");
 		} 
 		debug("done");
 		closeSession();

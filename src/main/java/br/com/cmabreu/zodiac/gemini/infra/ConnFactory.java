@@ -6,6 +6,8 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
 
+import br.com.cmabreu.zodiac.gemini.core.Logger;
+
 public class ConnFactory {
 	private static SessionFactory factory;
 	private static String myClass = "br.cefetrj.infra.database.ConnFactory";
@@ -19,21 +21,26 @@ public class ConnFactory {
 		databaseName = database;
 	}
 	
-	private static void doLog( String s ) {
-		System.out.println(myClass + " " + s);
+	private static void debug( String s ) {
+		Logger.getInstance().debug( myClass, s );
 	}
+	
+	private static void error( String s ) {
+		Logger.getInstance().error( myClass, s );
+	}	
 
 	public static Session getSession() {
 		if ( factory == null ) {
 			
 			try { 
-				doLog("starting Hibernate as " + userName + ":******@" + databaseName);
+				debug("starting Hibernate as " + userName + ":******@" + databaseName);
 				
 				Configuration cfg1 = new Configuration();
 				cfg1.configure("hibernate.cfg.xml");
-				//String url = "jdbc:postgresql://localhost/" + databaseName + "?ApplicationName=Sagitarii";
+				
+				String url = "jdbc:postgresql://localhost/" + databaseName + "?ApplicationName=Zodiac Gemini";
 				cfg1.setProperty("hibernate.connection.username", userName);
-				//cfg1.setProperty("hibernate.connection.url", url);
+				cfg1.setProperty("hibernate.connection.url", url);
 			 	cfg1.setProperty("hibernate.connection.password", password);
 				
 				StandardServiceRegistryBuilder serviceRegistryBuilder1 = new StandardServiceRegistryBuilder();
@@ -43,7 +50,7 @@ public class ConnFactory {
 				factory = cfg1.buildSessionFactory(serviceRegistry1);			
 				
 			} catch (Throwable ex) { 
-				doLog("fail: " + ex.getMessage() );
+				error("fail: " + ex.getMessage() );
 				ex.printStackTrace();
 				return null;
 			}

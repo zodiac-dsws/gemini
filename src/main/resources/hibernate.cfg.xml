@@ -5,7 +5,8 @@
 	<session-factory>  
 		<property name="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</property> 
 		<property name="hibernate.connection.driver_class">org.postgresql.Driver</property> 
-		<property name="hibernate.connection.url">jdbc:postgresql://localhost/sagitarii?ApplicationName=Sagitarii</property> 
+		
+		 
 
 		<property name="hibernate.hbm2ddl.auto">update</property>
 
@@ -37,6 +38,7 @@
 		<mapping class="br.com.cmabreu.zodiac.gemini.entity.Instance"/>
 		<mapping class="br.com.cmabreu.zodiac.gemini.entity.Relation"/>
 		<mapping class="br.com.cmabreu.zodiac.gemini.entity.Workflow"/>
+		<mapping class="br.com.cmabreu.zodiac.gemini.entity.ActivationExecutor"/>
 		
 		
 	</session-factory> 

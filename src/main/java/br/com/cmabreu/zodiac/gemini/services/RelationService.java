@@ -35,6 +35,13 @@ public class RelationService {
 		return result;
 	}	
 	
+	public int getCount( String tableName, String criteria ) throws Exception {
+		if ( !rep.isOpen() ) {
+			rep.newTransaction();
+		}
+		return rep.getCount( tableName, criteria );
+	}	
+	
 	public List<Relation> getList() throws NotFoundException {
 		return rep.getList();	
 	}	
