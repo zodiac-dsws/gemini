@@ -43,6 +43,9 @@ public class GeminiFederate {
 		return instance;
 	}
 	
+	// *************************************************************
+	// *** TODO: MUST BE THREADED OR WILL BLOCK THE FEDERATE!!!! ***
+	// *************************************************************
 	public Experiment startExperiment( int idExperiment ) throws Exception {
 		debug("Starting Experiment ID " + idExperiment + "...");
 		Experiment experiment = new ExperimentService().runExperiment( idExperiment );
@@ -197,8 +200,10 @@ public class GeminiFederate {
 					int pips = fp.getInstances().size();
 					if ( pips == 0) {
 						debug("experiment " + experimentSerial + " generate empty instance list. Will finish it" );
+						finishExperimentInteractionClass.send( experimentSerial );
 					} else {
 						debug("done generating " + pips + "instances for Experiment " + experimentSerial );
+						instancesCreatedInteractionClass.send( experimentSerial, pips);
 					}
 					
 				} catch (Exception e) {
