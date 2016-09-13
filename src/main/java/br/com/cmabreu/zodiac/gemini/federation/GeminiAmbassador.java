@@ -72,6 +72,12 @@ public class GeminiAmbassador extends NullFederateAmbassador {
 			if ( GeminiFederate.getInstance().isGenerateInstanceInteraction( interactionClass ) ) {
 				GeminiFederate.getInstance().generateInstances( theParameters );
 			}
+			
+			if ( GeminiFederate.getInstance().isExperimentFinishedInteraction( interactionClass ) ) {
+				debug("Finish Experiment notification received. Nothing to do. Will ignore for now...");
+			}
+			
+			
 		} catch ( Exception e ) {
 			
 		}

@@ -36,6 +36,27 @@ public class ExperimentService {
 		return expRet ;
 	}	
 	
+	public void updateExperiment(Experiment experiment) throws UpdateException {
+		debug("update " + experiment.getTagExec() );
+		Experiment oldExperiment;
+		try {
+			oldExperiment = rep.getExperiment( experiment.getIdExperiment() );
+		} catch (NotFoundException e) {
+			throw new UpdateException( e.getMessage() );
+		}
+		oldExperiment.setStatus( experiment.getStatus() );
+		oldExperiment.setAlterationDate( Calendar.getInstance().getTime() );
+		oldExperiment.setLastExecutionDate( experiment.getLastExecutionDate() );
+		oldExperiment.setFinishDateTime( experiment.getFinishDateTime() );
+		oldExperiment.setActivitiesSpecs( experiment.getActivitiesSpecs() );
+		oldExperiment.setImagePreviewData( experiment.getImagePreviewData() );
+		
+		rep.newTransaction();
+		rep.updateExperiment(oldExperiment);
+		
+	}	
+	
+	
 	public Experiment generateExperiment( Experiment source, User owner ) throws InsertException {
 		Experiment ex = new Experiment();
 		try {

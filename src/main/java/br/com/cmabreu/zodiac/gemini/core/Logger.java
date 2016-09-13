@@ -1,11 +1,19 @@
 package br.com.cmabreu.zodiac.gemini.core;
 
+import java.util.Calendar;
+
 public class Logger {
 	private static Logger instance;
 	private boolean enabled;
+	private boolean toFile = true;
+	private String fileName;
 	
 	public void enable() {
 		enabled = true;
+	}
+	
+	public void canOutputToFile( boolean toFile ) {
+		this.toFile = toFile;
 	}
 	
 	public void disable() {
@@ -25,19 +33,27 @@ public class Logger {
 		return temp[ pos ] ;
 	}
 	
+	private void print( String s ) {
+		System.out.println( s );
+		
+	}
+	
 	public void debug( String className, String message ) {
 		if ( !enabled ) { return; }
-		System.out.println( "[DEBUG] " + getClassName(className) + " " + message);
+		String s = "[DEBUG] " + getClassName(className) + " " + message;
+		print( s );
 	}
 	
 	public void error( String className, String message ) {
 		if ( !enabled ) { return; }
-		System.out.println( "[ERROR] " + getClassName(className) + " " + message);
+		String s = "[ERROR] " + getClassName(className) + " " + message;
+		print( s );
 	}
 	
 	public void warn( String className, String message ) {
 		if ( !enabled ) { return; }
-		System.out.println( "[WARN] " + getClassName(className) + " " + message);
+		String s = "[WARN] " + getClassName(className) + " " + message;
+		print( s );
 	}
 
 	
