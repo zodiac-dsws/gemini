@@ -1,6 +1,7 @@
 package br.com.cmabreu.zodiac.gemini.federation.classes;
 
 
+import br.com.cmabreu.zodiac.gemini.core.Logger;
 import br.com.cmabreu.zodiac.gemini.federation.EncoderDecoder;
 import br.com.cmabreu.zodiac.gemini.federation.RTIAmbassadorProvider;
 import hla.rti1516e.InteractionClassHandle;
@@ -39,17 +40,25 @@ public class InstanceCreationErrorInteractionClass {
 		return reason;
 	}	
 	
-	public void send( String experimentSerial, String reason ) throws Exception {
-		HLAunicodeString experimentSerialValue = encodec.createHLAunicodeString( experimentSerial );
-		HLAunicodeString reasonValue = encodec.createHLAunicodeString( reason );
-		
-		ParameterHandleValueMap parameters = rtiamb.getParameterHandleValueMapFactory().create(2);
-		parameters.put( experimentSerialParameterHandle, experimentSerialValue.toByteArray() );
-		parameters.put( reasonParameterHandle, reasonValue.toByteArray() );
-		
-		rtiamb.sendInteraction( instanceCreationErrorInteractionHandle, parameters, "Error Creating Instances".getBytes() );		
+	public void send( String experimentSerial, String reason ) {
+		try {
+			HLAunicodeString experimentSerialValue = encodec.createHLAunicodeString( experimentSerial );
+			HLAunicodeString reasonValue = encodec.createHLAunicodeString( reason );
+			
+			ParameterHandleValueMap parameters = rtiamb.getParameterHandleValueMapFactory().create(2);
+			parameters.put( experimentSerialParameterHandle, experimentSerialValue.toByteArray() );
+			parameters.put( reasonParameterHandle, reasonValue.toByteArray() );
+			
+			rtiamb.sendInteraction( instanceCreationErrorInteractionHandle, parameters, "Error Creating Instances".getBytes() );
+		} catch ( Exception e ) {
+			error("Error sending notification to the Federation: " + e.getMessage() );
+		}
 	}
 
+	private void error( String s ) {
+		Logger.getInstance().error(this.getClass().getName(), s );
+	}
+	
 	public void publish() throws Exception {
 		rtiamb.publishInteractionClass( instanceCreationErrorInteractionHandle );
 	}

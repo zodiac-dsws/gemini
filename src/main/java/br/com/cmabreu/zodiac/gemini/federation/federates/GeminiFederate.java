@@ -2,13 +2,10 @@ package br.com.cmabreu.zodiac.gemini.federation.federates;
 
 import java.io.File;
 import java.net.URL;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
-import br.com.cmabreu.zodiac.gemini.core.FragmentInstancer;
 import br.com.cmabreu.zodiac.gemini.core.Logger;
-import br.com.cmabreu.zodiac.gemini.entity.Experiment;
 import br.com.cmabreu.zodiac.gemini.federation.Environment;
 import br.com.cmabreu.zodiac.gemini.federation.RTIAmbassadorProvider;
 import br.com.cmabreu.zodiac.gemini.federation.classes.CoreClass;
@@ -19,9 +16,6 @@ import br.com.cmabreu.zodiac.gemini.federation.classes.GenerateInstancesInteract
 import br.com.cmabreu.zodiac.gemini.federation.classes.InstanceCreationErrorInteractionClass;
 import br.com.cmabreu.zodiac.gemini.federation.classes.InstancesCreatedInteractionClass;
 import br.com.cmabreu.zodiac.gemini.misc.PathFinder;
-import br.com.cmabreu.zodiac.gemini.services.ExperimentService;
-import br.com.cmabreu.zodiac.gemini.services.FragmentService;
-import br.com.cmabreu.zodiac.gemini.types.ExperimentStatus;
 import hla.rti1516e.AttributeHandleValueMap;
 import hla.rti1516e.InteractionClassHandle;
 import hla.rti1516e.ObjectInstanceHandle;
@@ -55,17 +49,15 @@ public class GeminiFederate {
 	// *************************************************************
 	// *** TODO: MUST BE THREADED OR WILL BLOCK THE FEDERATE!!!! ***
 	// *************************************************************
-	public Experiment startExperiment( int idExperiment ) throws Exception {
-		debug("Starting Experiment ID " + idExperiment + "...");
-		Experiment experiment = new ExperimentService().runExperiment( idExperiment );
-		debug("Experiment " + experiment.getTagExec() + " is now running.");
-
-		// Notify the Federation
-		experimentStartedInteractionClass.send( experiment.getTagExec() );
-
-		return experiment;
+	public void startExperiment( int idExperiment ) throws Exception {
+		StartExperimentThread set = new StartExperimentThread(idExperiment);
+		set.run();
 	}	
 
+	public ExperimentStartedInteractionClass getExperimentStartedInteractionClass() {
+		return experimentStartedInteractionClass;
+	}
+	
 	public void finishFederationExecution() throws Exception {
 		debug( "Will try to finish Federation execution" );
 		RTIambassador rtiamb = RTIAmbassadorProvider.getInstance().getRTIAmbassador();
@@ -184,7 +176,23 @@ public class GeminiFederate {
 		};
 		rtiamb.joinFederationExecution( "Gemini", "GeminiType", "Zodiac", joinModules );           
 	}
+	
+	public GenerateInstancesInteractionClass getGenerateInstancesInteractionClass() {
+		return generateInstancesInteractionClass;
+	}
+	
+	public ExperimentFinishedInteractionClass getExperimentFinishedInteractionClass() {
+		return experimentFinishedInteractionClass;
+	}
+	
+	public InstancesCreatedInteractionClass getInstancesCreatedInteractionClass() {
+		return instancesCreatedInteractionClass;
+	}
 
+	public InstanceCreationErrorInteractionClass getInstanceCreationErrorInteractionClass() {
+		return instanceCreationErrorInteractionClass;
+	}
+	
 	private void debug( String s ) {
 		Logger.getInstance().debug(this.getClass().getName(), s );
 	}	
@@ -201,52 +209,8 @@ public class GeminiFederate {
 	// *** TODO: MUST BE THREADED OR WILL BLOCK THE FEDERATE!!!! ***
 	// *************************************************************
 	public void generateInstances(ParameterHandleValueMap theParameters) throws Exception {
-		String experimentSerial = generateInstancesInteractionClass.getExperimentSerial( theParameters );
-		debug("Generate instances for Experiment " + experimentSerial + " under external request.");
-		try {
-	
-			ExperimentService es = new ExperimentService();
-			Experiment exp = es.getExperiment(experimentSerial);
-	
-			FragmentService fs = new FragmentService();
-			exp.setFragments( fs.getList( exp.getIdExperiment() ) );
-	
-			debug("Experiment " + exp.getTagExec() + " found. Generating Instances...");
-	
-			FragmentInstancer fp = new FragmentInstancer( exp );
-			fp.generate();
-			int pips = fp.getInstances().size();
-			if ( pips == 0) {
-				debug("Experiment " + experimentSerial + " generate no Instances. Will finish it." );
-				es.newTransaction();
-				exp.setStatus( ExperimentStatus.FINISHED );
-				exp.setFinishDateTime( Calendar.getInstance().getTime() );
-				es.updateExperiment(exp);
-				debug("Broadcast to the Federation Experiment " + experimentSerial + " is finished." );
-				experimentFinishedInteractionClass.send( experimentSerial );
-			} else {
-				debug("done generating " + pips + " Instances for Experiment " + experimentSerial );
-				instancesCreatedInteractionClass.send( experimentSerial, pips);
-			}
-		} catch ( Exception e ) {
-			instanceCreationErrorInteractionClass.send(experimentSerial, "Error creating instances: " + e.getMessage() );
-		}
-		/*
-			select exp.id_experiment as experiment, act.executoralias, fr.id_fragment as fragment, fr.status as fragstatus, ins.serial as instance, ins.type from instances ins 
-				join fragments fr on fr.id_fragment = ins.id_fragment
-				join activities act on act.id_fragment = fr.id_fragment
-				join experiments exp on exp.id_experiment = fr.id_experiment
-			order by fr.serial
-
-			update fragments set status = 'RUNNING' where id_fragment = 3154
-			update instances set status = 'PIPELINED' where id_fragment = 3153
-			update experiments set status = 'RUNNING' where id_experiment = 355
-			select * from instances where status = 'PIPELINED'
-
-			select distinct (status), count(status) from instances group by status order by status
-			select id_fragment, status, count(status) from instances group by id_fragment,status order by status	
-
-		 */
+		InstanceGeneratorThread igt = new InstanceGeneratorThread(theParameters);
+		igt.run();
 	}
 
 	public boolean isExperimentFinishedInteraction(InteractionClassHandle interactionClassHandle) {
