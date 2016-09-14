@@ -11,14 +11,13 @@ import br.com.cmabreu.zodiac.gemini.infra.ConnFactory;
 public class Main {
 	private ScheduledExecutorService scheduler;
 	
-    private void loggerDebug( String log ) {
-    	System.out.println( log );
-    }
-    
-    private void loggerError( String log ){
-    	System.out.println( log );
-    }
+	private void debug( String s ) {
+		Logger.getInstance().debug(this.getClass().getName(), s );
+	}	
 
+	private void error( String s ) {
+		Logger.getInstance().error(this.getClass().getName(), s );
+	}		
 
     public static void main( String[] args ) {
     	System.out.println("Starting Gemini...");
@@ -40,7 +39,7 @@ public class Main {
 			String passwd = config.getPassword();
 			String database = config.getDatabaseName();
 
-			loggerDebug("Credentials: " + user + " | " + database);
+			debug("Credentials: " + user + " | " + database);
 			
     		ConnFactory.setCredentials(user, passwd, database);
 
@@ -55,7 +54,7 @@ public class Main {
 	        
 		} catch (Exception e) { 
 			System.out.println( e.getMessage() );
-			loggerError( e.getMessage() );
+			error( e.getMessage() );
 			//e.printStackTrace(); 
 		}
         
