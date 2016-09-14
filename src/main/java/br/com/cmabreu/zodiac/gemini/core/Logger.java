@@ -1,12 +1,35 @@
 package br.com.cmabreu.zodiac.gemini.core;
 
-import java.util.Calendar;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import br.com.cmabreu.zodiac.gemini.misc.PathFinder;
+
 
 public class Logger {
 	private static Logger instance;
 	private boolean enabled;
 	private boolean toFile = true;
-	private String fileName;
+	private PrintWriter out;
+	
+	public Logger() {
+		try {
+			String fileName = new SimpleDateFormat("dd-MM-yyyy-HH-mm-ss").format( new Date() ) + ".txt";
+			String path = PathFinder.getInstance().getPath() + "/logs/";
+			File fil = new File( path );
+			fil.mkdirs();
+			
+			FileWriter fw = new FileWriter( path + fileName, true );
+		    BufferedWriter bw = new BufferedWriter(fw);
+		    out = new PrintWriter(bw);
+		} catch ( Exception e ) {
+			toFile = false;
+		}
+	}
 	
 	public void enable() {
 		enabled = true;
@@ -33,8 +56,12 @@ public class Logger {
 		return temp[ pos ] ;
 	}
 	
-	private void print( String s ) {
+	private synchronized void print( String s ) {
 		System.out.println( s );
+		if ( toFile ) {
+			out.println( s );
+			out.flush();
+		}
 		
 	}
 	

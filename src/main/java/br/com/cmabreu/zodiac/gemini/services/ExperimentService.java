@@ -123,6 +123,8 @@ public class ExperimentService {
 			throw new UpdateException( e.getMessage() );
 		}
 		
+		debug("Found Experiment " + idExperiment + ": " +  experiment.getTagExec() );
+		
 		if ( experiment.getStatus() == ExperimentStatus.FINISHED ) {
 			throw new Exception("This experiment is finished.");
 		}
@@ -135,7 +137,7 @@ public class ExperimentService {
 			throw new Exception("This experiment is already starting. Be patient.");
 		}
 		
-		debug("setting experiment status to STARTING");
+		debug("setting experiment " + experiment.getTagExec() + "status to STARTING");
 		experiment.setStatus( ExperimentStatus.STARTING );
 		rep.newTransaction();
 		rep.updateExperiment(experiment);
@@ -163,7 +165,7 @@ public class ExperimentService {
 			FragmentInstancer fp = new FragmentInstancer( experiment );
 			fp.generate();
 			
-			int pips = fp.getInstances().size();
+			int pips = fp.getTotalInstances();
 			
 			debug( acts + " activities generated." );
 			debug( frgs + " fragments generated." );

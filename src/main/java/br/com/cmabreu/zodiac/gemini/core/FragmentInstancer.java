@@ -20,7 +20,12 @@ import br.com.cmabreu.zodiac.gemini.types.FragmentStatus;
 public class FragmentInstancer {
 	private List<Fragment> fragments;
 	private Experiment experiment;
-	List<Instance> instances = new ArrayList<Instance>();
+	private List<Instance> instances = new ArrayList<Instance>();
+	private int totalInstances = 0;
+	
+	public int getTotalInstances() {
+		return totalInstances;
+	}
 	
 	/**
 	 * Check if a Fragment contains an Activity
@@ -155,21 +160,23 @@ public class FragmentInstancer {
 	public void generate() throws Exception {
 		try {
 			for ( Fragment frag : fragments ) {
-				debug("Checking fragment " + frag.getSerial() + " (" + frag.getStatus() + "):");
+				debug("Checking fragment " + frag.getSerial() + " ( status = " + frag.getStatus() + " ):");
 				if ( ( frag.getStatus() == FragmentStatus.PREVIEW ) || ( frag.getStatus() == FragmentStatus.READY ) ) {
 					debug("will create instances for fragment " + frag.getSerial() );
 					Activity act = getEntrancePoint( frag );
 					if ( act != null ) {
-						debug("entrance point: activity " + act.getTag() + " (" + act.getExecutorAlias() + ")" );
+						debug("Searching for Fragment " + frag.getSerial() + " entrance point: Checking Activity " + act.getTag() + " (" + act.getExecutorAlias() + ")" );
 						// Check if any of source tables have any data...
 						if ( checkSourceDataAvailability( act ) ) {
 							instances = InstanceGeneratorFactory.getGenerator( act.getType() ).generateInstances(act, frag);
+							totalInstances = totalInstances + instances.size();
 							if ( instances.size() > 0 ) {
 								debug("done. " + instances.size() + " instances generated. will store...");
 								new InstanceService().insertInstanceList(instances);
-								debug("done storing instances to database. updating fragment status to PIPELINED...");
+								debug("done storing instances to database. updating fragment " + frag.getSerial() + " status to RUNNING...");
 								
-								frag.setStatus( FragmentStatus.PIPELINED );
+								//frag.setStatus( FragmentStatus.PIPELINED );
+								frag.setStatus( FragmentStatus.RUNNING );
 								frag.setRemainingInstances( instances.size() );
 								frag.setTotalInstances( instances.size() );
 								FragmentService fs = new FragmentService();
@@ -178,7 +185,7 @@ public class FragmentInstancer {
 							} else {
 								error("no instances were created.");
 							}
-							debug("done");
+							debug("done updating Fragment " + frag.getSerial() );
 						} else {
 							debug("no data available. is it an experiment E.P. ? ");
 							if ( checkExperimentStartPoint(act) ) {

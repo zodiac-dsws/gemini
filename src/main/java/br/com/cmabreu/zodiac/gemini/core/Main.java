@@ -29,6 +29,7 @@ public class Main {
 
     	try {
     		Logger.getInstance().enable();
+    		Logger.getInstance().canOutputToFile( true );
        
     		int interval = 5;
 			Configurator config = Configurator.getInstance("config.xml");
@@ -46,19 +47,12 @@ public class Main {
 			scheduler = Executors.newSingleThreadScheduledExecutor();
 	        MainHeartBeat as = new MainHeartBeat();
 	        scheduler.scheduleAtFixedRate(as, interval, interval , TimeUnit.SECONDS);
-
 	        GeminiFederate.getInstance().startServer();
+
 	        
+	        TestTimedRequest tmr = new TestTimedRequest();
+	        tmr.run();
 	        
-	        // ****************** START EXPERIMENT TEST ****************
-				try {
-					GeminiFederate.getInstance().startExperiment( 354 );
-				} catch (Exception e) {
-					e.printStackTrace();
-				}	        
-	        // *********************************************************
-	        
-				
 		} catch (Exception e) { 
 			System.out.println( e.getMessage() );
 			loggerError( e.getMessage() );

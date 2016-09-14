@@ -222,7 +222,6 @@ public class InstanceCreator {
 			sql = sql.replace("%ID_ACT%", String.valueOf( activity.getIdActivity() ) );
 			
 			command = sql;
-			debug(sql);
 		} else {
 			command = executor.getActivationWrapper();
 			debug("this activity will run " + activity.getCommand() + " node application ");

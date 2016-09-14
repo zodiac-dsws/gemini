@@ -151,8 +151,6 @@ public class GeminiFederate {
 			// Notify Federation when a Experiment is finished.
 			experimentFinishedInteractionClass = new ExperimentFinishedInteractionClass();
 			experimentFinishedInteractionClass.publish();
-			// Sagittarius can finish Experiments... Listen to it
-			experimentFinishedInteractionClass.subscribe();
 			
 			// Notify Federation when create instances
 			instancesCreatedInteractionClass = new InstancesCreatedInteractionClass();
@@ -204,7 +202,7 @@ public class GeminiFederate {
 	// *************************************************************
 	public void generateInstances(ParameterHandleValueMap theParameters) throws Exception {
 		String experimentSerial = generateInstancesInteractionClass.getExperimentSerial( theParameters );
-		debug("Generate instances for experiment " + experimentSerial );
+		debug("Generate instances for Experiment " + experimentSerial + " under external request.");
 		try {
 	
 			ExperimentService es = new ExperimentService();
@@ -224,7 +222,7 @@ public class GeminiFederate {
 				exp.setStatus( ExperimentStatus.FINISHED );
 				exp.setFinishDateTime( Calendar.getInstance().getTime() );
 				es.updateExperiment(exp);
-				debug("Broadcast to the Federation " + experimentSerial + " is finished." );
+				debug("Broadcast to the Federation Experiment " + experimentSerial + " is finished." );
 				experimentFinishedInteractionClass.send( experimentSerial );
 			} else {
 				debug("done generating " + pips + " Instances for Experiment " + experimentSerial );
