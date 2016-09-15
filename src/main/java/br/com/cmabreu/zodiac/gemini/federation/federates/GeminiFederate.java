@@ -2,7 +2,9 @@ package br.com.cmabreu.zodiac.gemini.federation.federates;
 
 import java.io.File;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import br.com.cmabreu.zodiac.gemini.core.Logger;
@@ -35,10 +37,9 @@ public class GeminiFederate {
 	private ExperimentFinishedInteractionClass experimentFinishedInteractionClass;
 	private InstancesCreatedInteractionClass instancesCreatedInteractionClass;
 	private InstanceCreationErrorInteractionClass instanceCreationErrorInteractionClass;
-	
-
+	private List<String> processingExperiments;
 	private CoreClass coreClass;
-
+	
 	public static GeminiFederate getInstance() throws Exception {
 		if ( instance == null ) {
 			instance = new GeminiFederate();
@@ -58,8 +59,27 @@ public class GeminiFederate {
 	// ***    MUST BE THREADED OR WILL BLOCK THE FEDERATE!!!!    ***
 	// *************************************************************
 	public void generateInstances(ParameterHandleValueMap theParameters) throws Exception {
-		InstanceGeneratorThread igt = new InstanceGeneratorThread(theParameters);
+		String experimentSerial = generateInstancesInteractionClass.getExperimentSerial( theParameters );
+		if ( processingExperiments.contains( experimentSerial ) ) {
+			warn("Already generating Instances for Experiment " + experimentSerial);
+			return;
+		}
+		processingExperiments.add( experimentSerial );
+		debug("Will generate Instances for Experiment " + experimentSerial + ". Processing " + processingExperiments.size() + " Experiments." );
+		InstanceGeneratorThread igt = new InstanceGeneratorThread( experimentSerial );
 		igt.run();
+	}
+	
+	public synchronized void removeProcessingExperiments( String experimentSerial ) {
+		processingExperiments.remove( experimentSerial );
+		/*
+		for ( String s : processingExperiments ) {
+			if ( s.equals( experimentSerial ) ) {
+				processingExperiments.remove(s);
+				break;
+			}
+		}
+		*/
 	}
 	
 	public ExperimentStartedInteractionClass getExperimentStartedInteractionClass() {
@@ -83,6 +103,7 @@ public class GeminiFederate {
 
 	private GeminiFederate( ) throws Exception {
 		rootPath = PathFinder.getInstance().getPath();
+		processingExperiments = new ArrayList<String>(); 
 	}
 
 	private void startFederate() {

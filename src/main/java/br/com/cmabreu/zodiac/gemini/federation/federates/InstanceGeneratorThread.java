@@ -11,10 +11,10 @@ import br.com.cmabreu.zodiac.gemini.types.ExperimentStatus;
 import hla.rti1516e.ParameterHandleValueMap;
 
 public class InstanceGeneratorThread implements Runnable {
-	private ParameterHandleValueMap theParameters;
+	private String experimentSerial;
 	
-	public InstanceGeneratorThread( ParameterHandleValueMap theParameters ) {
-		this.theParameters = theParameters;
+	public InstanceGeneratorThread( String experimentSerial ) {
+		this.experimentSerial = experimentSerial;
 	}
 	
 	private void debug( String s ) {
@@ -30,7 +30,6 @@ public class InstanceGeneratorThread implements Runnable {
     	debug("start thread");
     	try {
 	    	GeminiFederate federate = GeminiFederate.getInstance();
-			String experimentSerial = federate.getGenerateInstancesInteractionClass().getExperimentSerial( theParameters );
 	
 			try {
 				debug("Generate instances for Experiment " + experimentSerial + " under external request.");
@@ -64,7 +63,13 @@ public class InstanceGeneratorThread implements Runnable {
     	} catch ( Exception e ) {
     		error("Fatal error starting thread: " + e.getMessage() );
     	}
+    	
     	debug("end thread");
+    	try {
+    		GeminiFederate.getInstance().removeProcessingExperiments( experimentSerial );
+    	} catch ( Exception e ) {
+    		e.printStackTrace();
+    	}
 
 		/*
 			select exp.id_experiment as experiment, act.executoralias, fr.id_fragment as fragment, fr.status as fragstatus, ins.serial as instance, ins.type from instances ins 
