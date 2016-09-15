@@ -47,13 +47,21 @@ public class GeminiFederate {
 	}
 
 	// *************************************************************
-	// *** TODO: MUST BE THREADED OR WILL BLOCK THE FEDERATE!!!! ***
+	// ***    MUST BE THREADED OR WILL BLOCK THE FEDERATE!!!!    ***
 	// *************************************************************
 	public void startExperiment( int idExperiment ) throws Exception {
 		StartExperimentThread set = new StartExperimentThread(idExperiment);
 		set.run();
-	}	
-
+	}
+	
+	// *************************************************************
+	// ***    MUST BE THREADED OR WILL BLOCK THE FEDERATE!!!!    ***
+	// *************************************************************
+	public void generateInstances(ParameterHandleValueMap theParameters) throws Exception {
+		InstanceGeneratorThread igt = new InstanceGeneratorThread(theParameters);
+		igt.run();
+	}
+	
 	public ExperimentStartedInteractionClass getExperimentStartedInteractionClass() {
 		return experimentStartedInteractionClass;
 	}
@@ -203,14 +211,6 @@ public class GeminiFederate {
 
 	private void error( String s ) {
 		Logger.getInstance().error(this.getClass().getName(), s );
-	}
-
-	// *************************************************************
-	// *** TODO: MUST BE THREADED OR WILL BLOCK THE FEDERATE!!!! ***
-	// *************************************************************
-	public void generateInstances(ParameterHandleValueMap theParameters) throws Exception {
-		InstanceGeneratorThread igt = new InstanceGeneratorThread(theParameters);
-		igt.run();
 	}
 
 	public boolean isExperimentFinishedInteraction(InteractionClassHandle interactionClassHandle) {
