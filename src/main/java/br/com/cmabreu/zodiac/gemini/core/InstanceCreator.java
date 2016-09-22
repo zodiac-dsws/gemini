@@ -198,8 +198,6 @@ public class InstanceCreator {
 		StringBuilder sbu = new StringBuilder();
 		String command = "";
 		
-		// Verifica se ha colunas do tipo "File" e modifica os dados (troca o ID pelo nome).
-		// TODO: ISSO PRECISA SER REFEITO !!
 		parameter = getFilesAndConvertData( activity, parameter );
 
 		cs.newTransaction();
